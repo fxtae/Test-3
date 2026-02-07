@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Video Editor Pro - Fully Functional</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loadingScreen">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <h2>Loading Nexus Video Editor Pro</h2>
+            <p>Loading FFmpeg engine for video processing...</p>
+            <div class="progress-bar">
+                <div class="progress-fill"></div>
+            </div>
+            <p class="status">Initializing...</p>
+        </div>
+    </div>
+
+    <!-- Main App (Hidden until loaded) -->
+    <div id="app" style="display: none;">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <i class="fas fa-video"></i>
+                <h1>NEXUS VIDEO EDITOR PRO</h1>
+                <span class="badge">FULLY WORKING</span>
+            </div>
+            <div class="header-controls">
+                <button class="btn btn-secondary" id="uploadBtn">
+                    <i class="fas fa-upload"></i>
+                </button>
+                <button class="btn btn-primary" id="exportBtn">
+                    <i class="fas fa-download"></i>
+                </button>
+                <button class="btn btn-warning" id="undoBtn">
+                    <i class="fas fa-undo"></i>
+                </button>
+                <button class="btn btn-danger" id="resetBtn">
+                    <i class="fas fa-redo"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Editor -->
+        <div class="editor-container">
+            <!-- Left Panel - Tools (Icons Only) -->
+            <div class="tools-panel">
+                <div class="tool-section">
+                    <div class="section-label">EDIT</div>
+                    <div class="tool-icons">
+                        <button class="tool-icon-btn active" data-tool="trim" title="Trim">
+                            <i class="fas fa-cut"></i>
+                        </button>
+                        <button class="tool-icon-btn" data-tool="crop" title="Crop">
+                            <i class="fas fa-crop"></i>
+                        </button>
+                        <button class="tool-icon-btn" data-tool="text" title="Text">
+                            <i class="fas fa-font"></i>
+                        </button>
+                        <button class="tool-icon-btn" data-tool="stickers" title="Stickers">
+                            <i class="fas fa-sticky-note"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="tool-section">
+                    <div class="section-label">AUDIO</div>
+                    <div class="tool-icons">
+                        <button class="tool-icon-btn" data-tool="voice" title="Voice Effects">
+                            <i class="fas fa-microphone"></i>
+                        </button>
+                        <button class="tool-icon-btn" data-tool="music" title="Music">
+                            <i class="fas fa-music"></i>
+                        </button>
+                        <button class="tool-icon-btn" data-tool="volume" title="Volume">
+                            <i class="fas fa-volume-up"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="tool-section">
+                    <div class="section-label">ENHANCE</div>
+                    <div class="tool-icons">
+                        <button class="tool-icon-btn" data-tool="enhance" title="Auto Enhance">
+                            <i class="fas fa-magic"></i>
+                        </button>
+                        <button class="tool-icon-btn" data-tool="filters" title="Filters">
+                            <i class="fas fa-sliders-h"></i>
+                        </button>
+                        <button class="tool-icon-btn" data-tool="adjust" title="Manual Adjust">
+                            <i class="fas fa-adjust"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="tool-section">
+                    <div class="section-label">EFFECTS</div>
+                    <div class="tool-icons">
+                        <button class="tool-icon-btn" data-tool="effects" title="Effects">
+                            <i class="fas fa-star"></i>
+                        </button>
+                        <button class="tool-icon-btn" data-tool="transitions" title="Transitions">
+                            <i class="fas fa-exchange-alt"></i>
+                        </button>
+                        <button class="tool-icon-btn" data-tool="speed" title="Speed">
+                            <i class="fas fa-tachometer-alt"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Center - Video Preview & Timeline -->
+            <div class="main-area">
+                <!-- Video Preview -->
+                <div class="video-container">
+                    <div class="video-wrapper" id="videoWrapper">
+                        <video id="videoPlayer" controls></video>
+                        <canvas id="videoCanvas" style="display: none;"></canvas>
+                        
+                        <!-- Overlays Container -->
+                        <div class="overlays-container" id="overlaysContainer"></div>
+                        
+                        <!-- Video Controls Overlay -->
+                        <div class="video-controls-overlay">
+                            <button class="control-btn" id="playPauseBtn">
+                                <i class="fas fa-play"></i>
+                            </button>
+                            <input type="range" id="volumeSlider" min="0" max="100" value="100">
+                            <span id="currentTimeDisplay">0:00</span>
+                            <span id="durationDisplay">0:00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Timeline -->
+                <div class="timeline-container">
+                    <div class="timeline-track" id="timelineTrack">
+                        <div class="timeline-progress" id="timelineProgress"></div>
+                        <div class="timeline-handle" id="timelineHandle"></div>
+                        <div class="timeline-marker start" id="timelineStart"></div>
+                        <div class="timeline-marker end" id="timelineEnd"></div>
+                    </div>
+                    <div class="timeline-controls">
+                        <button class="btn-sm" id="setStartBtn">
+                            <i class="fas fa-chevron-left"></i> Set Start
+                        </button>
+                        <button class="btn-sm" id="setEndBtn">
+                            Set End <i class="fas fa-chevron-right"></i>
+                        </button>
+                        <button class="btn-sm" id="applyTrimBtn">
+                            <i class="fas fa-check"></i> Apply Trim
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel - Tool Options -->
+            <div class="options-panel" id="optionsPanel">
+                <div class="panel-header">
+                    <h3 id="panelTitle">Tool Options</h3>
+                </div>
+                
+                <!-- Trim Panel -->
+                <div class="tool-options active" id="trimOptions">
+                    <div class="option-group">
+                        <label>Start Time: <span id="startTimeValue">0:00</span></label>
+                        <input type="range" id="startTimeSlider" min="0" max="100" value="0">
+                    </div>
+                    <div class="option-group">
+                        <label>End Time: <span id="endTimeValue">0:00</span></label>
+                        <input type="range" id="endTimeSlider" min="0" max="100" value="100">
+                    </div>
+                    <button class="btn btn-primary" id="trimVideoBtn">
+                        <i class="fas fa-cut"></i> Apply Trim
+                    </button>
+                </div>
+
+                <!-- Crop Panel -->
+                <div class="tool-options" id="cropOptions">
+                    <div class="aspect-grid">
+                        <button class="aspect-btn active" data-ratio="9:16">
+                            <div class="aspect-preview vertical"></div>
+                            <span>TikTok 9:16</span>
+                        </button>
+                        <button class="aspect-btn" data-ratio="16:9">
+                            <div class="aspect-preview horizontal"></div>
+                            <span>YouTube 16:9</span>
+                        </button>
+                        <button class="aspect-btn" data-ratio="1:1">
+                            <div class="aspect-preview square"></div>
+                            <span>Square 1:1</span>
+                        </button>
+                        <button class="aspect-btn" data-ratio="4:5">
+                            <div class="aspect-preview instagram"></div>
+                            <span>Instagram 4:5</span>
+                        </button>
+                    </div>
+                    <button class="btn btn-primary" id="applyCropBtn">
+                        <i class="fas fa-crop"></i> Apply Crop
+                    </button>
+                </div>
+
+                <!-- Voice Effects Panel -->
+                <div class="tool-options" id="voiceOptions">
+                    <div class="voice-grid">
+                        <button class="voice-btn" data-voice="tiktok">
+                            <i class="fab fa-tiktok"></i>
+                            <span>TikTok Voice</span>
+                        </button>
+                        <button class="voice-btn" data-voice="airport">
+                            <i class="fas fa-plane"></i>
+                            <span>Airport Voice</span>
+                        </button>
+                        <button class="voice-btn" data-voice="dubai">
+                            <i class="fas fa-building"></i>
+                            <span>Dubai Man Voice</span>
+                        </button>
+                        <button class="voice-btn" data-voice="robot">
+                            <i class="fas fa-robot"></i>
+                            <span>Robot Voice</span>
+                        </button>
+                        <button class="voice-btn" data-voice="deep">
+                            <i class="fas fa-mars"></i>
+                            <span>Deep Male</span>
+                        </button>
+                        <button class="voice-btn" data-voice="chipmunk">
+                            <i class="fas fa-crow"></i>
+                            <span>Chipmunk</span>
+                        </button>
+                    </div>
+                    <div class="option-group">
+                        <label>Voice Strength: <span id="voiceStrengthValue">50%</span></label>
+                        <input type="range" id="voiceStrengthSlider" min="0" max="100" value="50">
+                    </div>
+                    <button class="btn btn-primary" id="applyVoiceBtn">
+                        <i class="fas fa-microphone"></i> Apply Voice Effect
+                    </button>
+                </div>
+
+                <!-- Enhancement Panel -->
+                <div class="tool-options" id="enhanceOptions">
+                    <button class="btn btn-warning" id="autoEnhanceBtn">
+                        <i class="fas fa-bolt"></i> ONE-CLICK PRO ENHANCE
+                    </button>
+                    
+                    <div class="adjustment-group">
+                        <div class="adjustment">
+                            <label>Brightness</label>
+                            <input type="range" id="brightnessSlider" min="-100" max="100" value="0">
+                            <span id="brightnessValue">0</span>
+                        </div>
+                        <div class="adjustment">
+                            <label>Contrast</label>
+                            <input type="range" id="contrastSlider" min="-100" max="100" value="0">
+                            <span id="contrastValue">0</span>
+                        </div>
+                        <div class="adjustment">
+                            <label>Saturation</label>
+                            <input type="range" id="saturationSlider" min="-100" max="100" value="0">
+                            <span id="saturationValue">0</span>
+                        </div>
+                        <div class="adjustment">
+                            <label>Sharpness</label>
+                            <input type="range" id="sharpnessSlider" min="0" max="100" value="0">
+                            <span id="sharpnessValue">0</span>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-primary" id="applyEnhanceBtn">
+                        <i class="fas fa-check"></i> Apply Enhancements
+                    </button>
+                </div>
+
+                <!-- Text Panel -->
+                <div class="tool-options" id="textOptions">
+                    <div class="option-group">
+                        <input type="text" id="textInput" placeholder="Enter text here...">
+                    </div>
+                    <div class="color-picker">
+                        <input type="color" id="textColor" value="#FFFFFF">
+                        <input type="color" id="textBgColor" value="#00000000">
+                    </div>
+                    <div class="option-group">
+                        <label>Font Size: <span id="fontSizeValue">48</span></label>
+                        <input type="range" id="fontSizeSlider" min="12" max="120" value="48">
+                    </div>
+                    <button class="btn btn-primary" id="addTextBtn">
+                        <i class="fas fa-plus"></i> Add Text to Video
+                    </button>
+                </div>
+
+                <!-- Sticker Panel -->
+                <div class="tool-options" id="stickerOptions">
+                    <div class="sticker-upload-area" id="stickerUploadArea">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Upload Image to Make Sticker</p>
+                        <p class="small">Remove background automatically</p>
+                    </div>
+                    
+                    <div class="sticker-controls">
+                        <div class="option-group">
+                            <label>Sticker Size: <span id="stickerSizeValue">100%</span></label>
+                            <input type="range" id="stickerSizeSlider" min="10" max="300" value="100">
+                        </div>
+                        <div class="option-group">
+                            <label>Rotation: <span id="stickerRotateValue">0°</span></label>
+                            <input type="range" id="stickerRotateSlider" min="0" max="360" value="0">
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-primary" id="addStickerBtn">
+                        <i class="fas fa-sticky-note"></i> Add Sticker to Video
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modals -->
+        <div class="modal" id="uploadModal">
+            <div class="modal-content">
+                <h2>Upload Video</h2>
+                <div class="upload-area" id="dropZone">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p>Drag & drop video file here</p>
+                    <p class="small">or</p>
+                    <button class="btn btn-primary" id="selectFileBtn">
+                        <i class="fas fa-folder-open"></i> Select File
+                    </button>
+                    <input type="file" id="fileInput" accept="video/*" style="display: none;">
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" id="closeUploadBtn">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal" id="exportModal">
+            <div class="modal-content">
+                <h2>Export Video</h2>
+                <div class="export-options">
+                    <div class="option-group">
+                        <label>Resolution</label>
+                        <select id="exportResolution">
+                            <option value="1080">1080p (Full HD)</option>
+                            <option value="720">720p (HD)</option>
+                            <option value="480">480p (SD)</option>
+                        </select>
+                    </div>
+                    <div class="option-group">
+                        <label>Quality</label>
+                        <select id="exportQuality">
+                            <option value="high">High (Best)</option>
+                            <option value="medium">Medium</option>
+                            <option value="low">Low (Fast)</option>
+                        </select>
+                    </div>
+                    <div class="option-group">
+                        <label>Format</label>
+                        <select id="exportFormat">
+                            <option value="mp4">MP4 (Recommended)</option>
+                            <option value="webm">WebM</option>
+                            <option value="gif">Animated GIF</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="export-progress" id="exportProgress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="exportProgressFill"></div>
+                    </div>
+                    <p id="exportStatus">Preparing export...</p>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" id="cancelExportBtn">Cancel</button>
+                    <button class="btn btn-primary" id="startExportBtn">
+                        <i class="fas fa-download"></i> Start Export
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/@ffmpeg/ffmpeg@0.12.10/dist/ffmpeg.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
